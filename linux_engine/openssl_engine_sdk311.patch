@@ -1,0 +1,56 @@
+Index: aes_gcm_engine.c
+===================================================================
+--- aes_gcm_engine.c	(revision 113664)
++++ aes_gcm_engine.c	(working copy)
+@@ -385,8 +385,8 @@
+   block16_t *iptr, *optr;
+   block16_t input, result, mask;
+ 
+-  if (!(aes_ctx->done & AES_GCM_AAD_DONE))
+-      return AES_GCM_AAD_NOT_SET;
++  if (!(aes_ctx->done & AES_GCM_IV_DONE))
++      return AES_GCM_IV_NOT_SET;
+ 
+   // Pre-fetch first cache line
+   CVMX_PREFETCH0(pin);
+@@ -593,10 +593,10 @@
+   block16_t *iptr, *optr;
+   block16_t input, result, mask;
+ 
+-  if (!(aes_ctx->done & AES_GCM_AAD_DONE))
+-      return AES_GCM_AAD_NOT_SET;
+-
+-  // Pre-fetch first cache line
++  if (!(aes_ctx->done & AES_GCM_IV_DONE))
++	return AES_GCM_IV_NOT_SET;
++ 
++ // Pre-fetch first cache line
+   CVMX_PREFETCH0(cin);
+ 
+   if(cur_aes_ctx != aes_ctx)
+Index: e_octeon.c
+===================================================================
+--- e_octeon.c	(revision 113664)
++++ e_octeon.c	(working copy)
+@@ -781,9 +781,6 @@
+    if(!gctx->iv_set)
+       return -1;
+ 
+-   if(!ctx->encrypt && gctx->taglen < 0)
+-      return -1;
+-
+    if(in)
+    {
+       if(out == NULL)
+Index: Makefile
+===================================================================
+--- Makefile	(revision 113664)
++++ Makefile	(working copy)
+@@ -50,6 +50,7 @@
+ INCLUDES 		+= -I$(OPENSSL_TOP_DIR)/include
+ 
+ CFLAGS_GLOBAL += -fPIC
++CFLAGS_GLOBAL += -Wno-error
+ CFLAGS_LOCAL  += $(DEFINES) $(INCLUDES) -O3 -Wall 
+ 
+ ifneq ($(findstring OCTEON_CN7, $(OCTEON_MODEL)),)
